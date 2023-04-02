@@ -31,6 +31,7 @@ namespace Model.EF
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            
             modelBuilder.Entity<About>()
                 .Property(e => e.MetaTitle)
                 .IsUnicode(false);
@@ -81,6 +82,10 @@ namespace Model.EF
 
             modelBuilder.Entity<Product>()
                 .Property(e => e.Code)
+                .IsUnicode(false);
+            //them
+            modelBuilder.Entity<Product>()
+                .Property(e => e.MetaTitle)
                 .IsUnicode(false);
 
             modelBuilder.Entity<Product>()

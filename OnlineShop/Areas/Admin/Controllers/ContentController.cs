@@ -1,4 +1,5 @@
-﻿using Model.Dao;
+﻿
+using Model.Dao;
 using Model.EF;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,13 @@ namespace OnlineShop.Areas.Admin.Controllers
     public class ContentController : BaseController
     {
         // GET: Admin/Content
-        //public ActionResult Index(string searchString, int page = 1, int pageSize = 10)
-        //{
-        //    var dao = new ContentDao();       //Phân trang
-        //    var model = dao.ListAllPaging(searchString, page, pageSize);
-        //    ViewBag.SearchString = searchString;
-        //    return View(model);
-        //}
+        public ActionResult Index(string searchString, int page = 1, int pageSize = 5)
+        {
+            var dao = new ContentDao();       //Phân trang
+            var model = dao.ListAllPaging(searchString, page, pageSize);
+            ViewBag.SearchString = searchString;
+            return View(model);
+        }
 
         [HttpGet]
         public ActionResult Create()
@@ -26,12 +27,12 @@ namespace OnlineShop.Areas.Admin.Controllers
             return View();
         }
         [HttpGet]
-        public ActionResult Edit(long id)
+        public ActionResult Edit(int id)
         {
-            var dao = new ContentDao();
-            var content = dao.GetByID(id);
+            
+            var content = new ContentDao().GetByID(id);
             SetViewBag(content.CategoryID);
-            return View();
+            return View(content);
         }
 
 
@@ -41,21 +42,50 @@ namespace OnlineShop.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                var dao = new ContentDao();
+                long id = dao.Insert(model);
+                if (id > 0)
+                {
+                    SetAlert("Thêm content thành công","success");
+                    return RedirectToAction("Index", "Content");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Thêm content không thành công");
+                }
 
             }
             SetViewBag();
-            return View();
+            return View("Index");
 
         }
         [HttpPost]
+        [ValidateInput(false)]
+
         public ActionResult Edit(Content model)
         {
             if (ModelState.IsValid)
             {
-
+                var dao = new ContentDao();
+                var result = dao.Update(model);
+                if (result)
+                {
+                    SetAlert("Cập nhật content thành công", "success");
+                    return RedirectToAction("Index", "Content");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Cập nhật content không thành công");
+                }
             }
             SetViewBag(model.CategoryID);
-            return View();
+            return View("Index");
+        }
+
+        public ActionResult Delete(long id)
+        {
+            new ContentDao().Delete(id);
+            return RedirectToAction("Index");
         }
 
 
@@ -63,6 +93,17 @@ namespace OnlineShop.Areas.Admin.Controllers
         {
             var dao = new CategoryDao();
             ViewBag.CategoryID = new SelectList(dao.ListAll(), "ID", "Name", selectedId);
+        }
+
+
+        [HttpPost]
+        public JsonResult ChangeStatus(long id)
+        {
+            var result = new ContentDao().ChangeStatus(id);
+            return Json(new
+            {
+                status = result
+            });
         }
     }
 }

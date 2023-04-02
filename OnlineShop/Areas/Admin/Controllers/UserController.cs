@@ -48,7 +48,7 @@ namespace OnlineShop.Areas.Admin.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Cập nhật user thành công");
+                    ModelState.AddModelError("", "Cập nhật user không thành công");
                 }
             }
             return View("Index");
